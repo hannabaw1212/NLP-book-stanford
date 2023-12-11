@@ -1,0 +1,512 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+N-gram Language Models
+\end_layout
+
+\begin_layout Standard
+statistics wikibook to refresh statics knowledge: https://en.wikipedia.org/wiki/Ou
+tline_of_statistics
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In this section we will introduce an language models that assign probability
+ to each possible next word.
+ for example consider the following sentence 
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\family sans
+\shape italic
+I went to school and the teacher gave us 
+\end_layout
+
+\begin_layout Standard
+\align left
+all of us or almost all of us will detect that the word should be 
+\family sans
+\shape italic
+homework, that is from all the words that we know we assign the highest
+ probabilty to the word homewrk to appear as the next word.
+\end_layout
+
+\begin_layout Standard
+we should ask ourselves now why should we want to assign probablities to
+ sentences? what this give us? The probability help us is several tasks
+ in natural language processing.
+ We can realize that such sentences are more likley to be correct than the
+ other while we are implementing speech recognition system.
+ In machine translation this probability can tell us that this translation
+ that we got in english is likley more precise than other results we got
+ also.all of us or almost all of us will detect that the word should be 
+\family sans
+\shape italic
+homework, 
+\family default
+\shape default
+that is from all the words that we know we assign the highest probabilty
+ to the word homewrk to appear as the next word.
+\end_layout
+
+\begin_layout Standard
+So how we define a language model (LM)? Models that assign a probability
+ to sequences of words are called 
+\series bold
+language models
+\series default
+ or 
+\series bold
+LMs.
+ N-grams 
+\series default
+are type of language models that assign probability to sentences or sequences
+ of words.
+ For example the probability for the phrase 
+\begin_inset Quotes eld
+\end_inset
+
+New York
+\begin_inset Quotes erd
+\end_inset
+
+ equals to 0.93.
+\end_layout
+
+\begin_layout Section
+N-Grams
+\end_layout
+
+\begin_layout Standard
+N-gram models is about computing the probability 
+\begin_inset Formula $P(w|h)$
+\end_inset
+
+, means the probability that the word 
+\begin_inset Formula $w$
+\end_inset
+
+ appear next given the sequence of words 
+\begin_inset Formula $h$
+\end_inset
+
+.
+ one of the ways to compute 
+\begin_inset Formula $P(w|h)$
+\end_inset
+
+ is just about answering the question 
+\begin_inset Quotes eld
+\end_inset
+
+out froom the times we saw 
+\begin_inset Formula $h$
+\end_inset
+
+, how many times it followed by 
+\begin_inset Formula $w$
+\end_inset
+
+? this called estimating the probability from the 
+\series bold
+relative frequency counts
+\series default
+.
+ Let's look at an example: 
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Formula $P(you|I\,love)=\frac{C(I\,love\,you)}{C(I\,you)}\;\;\;\;\;(3.1)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This method is not perfect, even the web is not enough to give us good estimate
+ in the most of the cases.
+ and also sentences are created all the time.
+ Other way is to that all the sentences that contain three words and count
+ from them the times the sentece 
+\begin_inset Quotes eld
+\end_inset
+
+I love you
+\begin_inset Quotes erd
+\end_inset
+
+ appear.
+ This is so much no? 
+\end_layout
+
+\begin_layout Standard
+For the reasons above we need other way to estimate our probabilities.
+ To do this we have to introduce the 
+\series bold
+chain rule of probability: 
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Formula $P(X_{1}...X_{n})=P(X_{1})*P(X_{2}|X_{1})*P(X_{3}|X_{1}X_{2})*...*P(X_{n}|X_{1:n-1})=\prod_{k=1}^{n}P(X_{k}|X_{1:k-1})\;\;\;\;\;(3.2)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+so when we apply the above rule to a set of words, we get:
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Formula $P(w_{1:n})=P(w_{1})*P(w_{2}|w_{1})*P(w_{3}|w_{1}\,w_{2})*...*P(w_{n}|w_{1:n-1})=\prod_{k=1}^{n}P(w_{k}|w_{1:k-1})\;\;\;\;\;(3.3)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The Above equation (3.4) is about computing the probabilityof a sequence
+ and the conditional probabilityof a word given a sequence of word.
+ Be aware using the chain rule doesn't help us, we cant use the word count
+ to compute the probability of a word given a sequence this because language
+ is so creative and diffcult and we need a lot lot lot of context.
+\end_layout
+
+\begin_layout Standard
+Here where the N-gram model comes into play.
+ Instead of computing the probability of a word given the entire history,
+ the N-gram model 
+\series bold
+approximates 
+\series default
+the history by just taking a few last words before.
+\end_layout
+
+\begin_layout Standard
+The 
+\series bold
+bigram
+\series default
+ model, approximates the probability of a word given the previous words,
+ given only the preceding word 
+\begin_inset Formula $P(w_{n}|w_{n-1})$
+\end_inset
+
+ instead.
+ for example
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Formula $P(the|sea\,so\,beautiful\,given\,that)\;\;\;\;\;(3.4)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+we approximate the above by
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Formula $P(the|that)\;\;\;\;\;(3.5)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In general the bigram model approximate the probability by using the above
+ equation
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Formula $P(w_{n}|w_{1:n-1})\approx P(w_{n}|w_{n-1})\;\;\;\;\;(3.5)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The assumption above, that is that the probability of a words depends only
+ on the previous word called 
+\series bold
+Makrov
+\series default
+ assumption.
+ Makrov models assume that we can estimate the probability of a future unit
+ without looking to far back.
+ 
+\end_layout
+
+\begin_layout Standard
+Under the bigram assumption we compute the probability of a series as follows:
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Formula $P(w_{1:n})\approx\prod_{k=1}^{n}P(w_{k}|w_{k-1})\;\;\;\;\;(3.6)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In general we donate the the n-gram size by N, then we approxiamte the probabili
+ty of a word given it's entire context as follows:
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Formula $P(w_{n}|w_{1:n-1})\approx P(w_{n}|w_{n-N+1:n-1})\;\;\;\;\;(3.7)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+An intutive way to estimatet he bigram or n-gram probabilities is by using
+ the 
+\series bold
+maximum likelihood estimation
+\series default
+ or 
+\series bold
+MLE
+\series default
+.
+ We get the MLE estimate for the parameters of the n-gram model by getting
+ the counts from a corpus, and 
+\series bold
+normalizing
+\series default
+ the counts so they will lie between 0 and 1.
+\end_layout
+
+\begin_layout Standard
+So we compute the probability of a word in bigram as follows:
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\series bold
+\begin_inset Formula $P(w_{n}|w_{n-1})=\frac{C(w_{n-1}\,w_{n})}{\sum_{w}C(w_{n-1}\,w)}\;\;\;\;\;(3.8)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The following 
+\begin_inset Formula $\sum_{w}C(w_{n-1}\,w)$
+\end_inset
+
+ must be equal to the unigram of the given word.
+ This because if we count every evidence of this word following every other
+ word it's equal to counting the evedince of the word (i.e unigram) in the
+ whole corpus.
+ So we can simplfy the (3.8) equation:
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Formula $P(w_{n}|w_{n-1})=\frac{C(w_{n-1}\,w_{n})}{C(w_{n-1})}\;\;\;\;\;(3.9)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Let's take an example, assume that we have a mini-corpus of three sentences.
+ First we add two special symbols at the beginning and the end of each sentence
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\family sans
+<s> I am Sam </s>
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\family sans
+<s> Sam I am </s>
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\family sans
+<s> I do not like green eggs and ham </s>
+\end_layout
+
+\begin_layout Standard
+Here are some bigram probabilities that we excract from the corpus above
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $P(I|<s>)=\frac{C(<s>\,I)}{C(<s>)}=\frac{2}{3}=0.67\;\;\;\;\;\;\;\;P(Sam|<s>)=\frac{1}{3}=0.33$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $P(am|I)=0.67\;\;\;\;\;\;\;\;P(</s>|Sam)=0.5\;\;\;\;\;\;\;\;P(Sam|am)=0.5$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $P(do|I)=0.33$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For the general MLE n-gram parameter estimation:
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Formula $P(w_{n}|w_{n-N+1:n-1})=\frac{C(w_{n-N+1:n-1}\,w_{n})}{C(w_{n-N+1:n-1})}\;\;\;\;\;(3.10)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For example to extimate 
+\begin_inset Formula $P(w_{6}|w_{1}\,w_{2}\,w_{3}\,w_{4}\,w_{5}\,w_{6})$
+\end_inset
+
+ in the 4-gram model we do that as follows:
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Formula $P(w_{6}|w_{1:5})=P(w_{6}|w_{6-4+1:6-1})=P(w_{6}|w_{3:5})=\frac{C(w_{3:5}\,w_{6})}{C(w_{3:5})}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-1"
+
+\end_inset
+
+Speech and Language Processing.
+ Daniel Jurafsky & James H.
+ Martin.
+ Copyright © 2023.
+ All rights reserved.
+ Draft of January 7, 2023
+\end_layout
+
+\end_body
+\end_document
